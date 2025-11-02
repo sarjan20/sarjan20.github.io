@@ -1,0 +1,396 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Sarjan Developer</title>
+    <!-- Load Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Configure Tailwind for Inter font and custom colors -->
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    fontFamily: {
+                        sans: ['Inter', 'sans-serif'],
+                    },
+                    colors: {
+                        'gamedev-primary': '#FACC15', // Amber 400 (Highlight)
+                        'gamedev-secondary': '#111827', // Dark Slate (Background)
+                        'gamedev-card': '#1F2937', // Dark Gray (Card)
+                        'gamedev-text': '#D1D5DB', // Light Gray
+                    }
+                }
+            }
+        }
+    </script>
+    <style>
+        html { scroll-behavior: smooth; }
+
+        /* Custom styling for game dev theme */
+        .card-glow {
+            transition: all 0.3s ease;
+        }
+        .card-glow:hover {
+            box-shadow: 0 0 20px rgba(250, 204, 21, 0.4);
+            transform: translateY(-5px);
+        }
+
+        /* Simple loading spinner placeholder */
+        .spinner {
+            border: 4px solid rgba(255, 255, 255, 0.3);
+            border-top: 4px solid #FACC15; /* Primary Color */
+            border-radius: 50%;
+            width: 40px;
+            height: 40px;
+            animation: spin 1s linear infinite;
+        }
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+    </style>
+</head>
+<body class="font-sans bg-gamedev-secondary text-gamedev-text min-h-screen flex flex-col">
+
+    <!-- 1. Loading State (Briefly shown until localStorage check is done) -->
+    <div id="loading-state" class="fixed inset-0 flex flex-col justify-center items-center bg-gamedev-secondary z-[100]">
+        <div class="spinner mb-4"></div>
+        <p class="text-xl text-gamedev-text">Booting up the Dev Station...</p>
+    </div>
+
+    <!-- 2. Profile Setup Container (Login Page) -->
+    <div id="profile-setup-container" class="hidden flex-grow flex justify-center items-center p-4 bg-gamedev-secondary absolute inset-0 z-50">
+        <div class="w-full max-w-md bg-gamedev-card p-8 rounded-2xl shadow-2xl border border-gray-700">
+            <h2 class="text-3xl font-extrabold text-gamedev-primary text-center mb-2">ACCESS TERMINAL</h2>
+            <p class="text-gray-400 text-center mb-8">Set your profile to personalize the experience.</p>
+
+            <form id="setup-form" class="space-y-6">
+                <div>
+                    <label for="student-name" class="block text-sm font-medium text-gamedev-text mb-1">Your Full Name</label>
+                    <input type="text" id="student-name" required placeholder="Alice Developer" class="w-full px-4 py-2 bg-gamedev-secondary border border-gray-600 rounded-lg text-white focus:ring-gamedev-primary focus:border-gamedev-primary transition duration-200">
+                </div>
+                <div>
+                    <label for="dev-alias" class="block text-sm font-medium text-gamedev-text mb-1">Developer Alias / Student ID</label>
+                    <input type="text" id="dev-alias" required placeholder="CodeMaster_BCA" class="w-full px-4 py-2 bg-gamedev-secondary border border-gray-600 rounded-lg text-white focus:ring-gamedev-primary focus:border-gamedev-primary transition duration-200">
+                </div>
+                <p id="error-message" class="text-red-400 text-sm h-4"></p>
+                <button type="submit" id="setup-button" class="w-full py-3 mt-4 text-base font-semibold rounded-xl text-gamedev-secondary bg-gamedev-primary hover:bg-amber-500 transition duration-300 shadow-lg shadow-gamedev-primary/30">
+                    Launch Dev Hub
+                </button>
+            </form>
+        </div>
+    </div>
+
+
+    <!-- 3. Main Content Hub (Hidden initially) -->
+    <div id="main-content" class="hidden flex-grow flex flex-col min-h-screen">
+        <!-- Header & Navigation -->
+        <header class="bg-gamedev-card shadow-lg sticky top-0 z-50">
+            <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4 flex justify-between items-center">
+                <a href="#" class="text-2xl font-extrabold text-gamedev-primary tracking-wide">
+                    Sarjan Developer
+                </a>
+                <nav class="hidden md:flex space-x-8">
+                    <a href="#engines" class="text-gamedev-text hover:text-gamedev-primary transition duration-300 font-medium">Engines</a>
+                    <a href="#roles" class="text-gamedev-text hover:text-gamedev-primary transition duration-300 font-medium">Careers</a>
+                    <a href="#resources" class="text-gamedev-text hover:text-gamedev-primary transition duration-300 font-medium">Resources</a>
+                    <button id="logout-button" class="text-red-400 hover:text-red-300 transition duration-300 font-medium ml-4">Clear Profile</button>
+                </nav>
+                <div class="md:hidden flex items-center space-x-4">
+                    <button id="logout-button-mobile" class="text-red-400 hover:text-red-300 transition duration-300 font-medium">Clear</button>
+                    <button id="mobile-menu-button" class="text-gamedev-text hover:text-gamedev-primary focus:outline-none">
+                        <!-- Hamburger Icon -->
+                        <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16"></path>
+                        </svg>
+                    </button>
+                </div>
+            </div>
+            <!-- Mobile Menu (Hidden by default) -->
+            <div id="mobile-menu" class="hidden md:hidden bg-gamedev-card pb-4">
+                <a href="#engines" class="block px-4 py-2 text-gamedev-text hover:bg-gamedev-secondary">Engines</a>
+                <a href="#roles" class="block px-4 py-2 text-gamedev-text hover:bg-gamedev-secondary">Careers</a>
+                <a href="#resources" class="block px-4 py-2 text-gamedev-text hover:bg-gamedev-secondary">Resources</a>
+            </div>
+        </header>
+
+        <main class="flex-grow">
+            <!-- Hero Section -->
+            <section class="relative bg-gamedev-secondary pt-24 pb-32 border-b border-gray-800">
+                <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
+                    <h1 id="welcome-message" class="text-4xl sm:text-5xl lg:text-6xl font-extrabold tracking-tight mb-4 text-white">
+                        Welcome back, Developer! <span class="text-gamedev-primary">Build Your World.</span>
+                    </h1>
+                    <p class="mt-3 max-w-3xl mx-auto text-xl text-gray-400 mb-10">
+                        The definitive hub for BCA students transitioning from code to creation in the game industry.
+                    </p>
+                    <a href="#engines" class="inline-flex items-center justify-center px-8 py-3 border border-transparent text-base font-medium rounded-xl shadow-lg text-gamedev-secondary bg-gamedev-primary hover:bg-amber-500 transition duration-300 transform hover:scale-105">
+                        Choose Your Engine
+                    </a>
+                </div>
+            </section>
+
+            <!-- Game Engines Section -->
+            <section id="engines" class="py-20 bg-gray-900">
+                <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+                    <div class="text-center mb-16">
+                        <h2 class="text-4xl font-extrabold text-white">
+                            The <span class="text-gamedev-primary">Engine</span> Room
+                        </h2>
+                        <p class="mt-4 text-xl text-gray-400">
+                            Key engines and frameworks powered by your BCA skills (C++, C#, JavaScript).
+                        </p>
+                    </div>
+
+                    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+                        <!-- Engine Card 1: Unity (C#) -->
+                        <div class="bg-gamedev-card p-6 rounded-2xl shadow-xl card-glow border border-gray-700">
+                            <div class="flex items-center mb-4">
+                                <div class="p-3 rounded-full bg-gamedev-primary/20 text-gamedev-primary">
+                                    <!-- Cube Icon -->
+                                    <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 3v4M3 5h4M6 17v4m-2-2h4m5-16l2.286 6.857L21 12l-5.714 2.143L13 21l-2.286-6.857L5 12l5.714-2.143L13 3z"></path></svg>
+                                </div>
+                                <h3 class="text-xl font-bold ml-4 text-white">Unity 3D/2D</h3>
+                            </div>
+                            <p class="text-gray-400 mb-4">
+                                Industry-standard for multi-platform development. Uses **C#**, which is great for BCA graduates.
+                            </p>
+                            <a href="#" class="text-gamedev-primary hover:text-amber-500 font-semibold text-sm">Start C# Path &raquo;</a>
+                        </div>
+
+                        <!-- Engine Card 2: Godot (GDScript/C++) -->
+                        <div class="bg-gamedev-card p-6 rounded-2xl shadow-xl card-glow border border-gray-700">
+                            <div class="flex items-center mb-4">
+                                <div class="p-3 rounded-full bg-blue-500/20 text-blue-400">
+                                    <!-- Rocket Icon -->
+                                    <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13.5 10.5V6a2.25 2.25 0 0 0-4.5 0v4.5M10.5 18a2.25 2.25 0 1 0 0-4.5 2.25 2.25 0 0 0 0 4.5ZM16.344 14.881a.541.541 0 0 1 .136.634l-.454.896a.586.586 0 0 1-.502.261H8.5c-.3 0-.54-.251-.54-.56v-1.631a2.032 2.032 0 0 1 1.706-2.001l2.5-1.5c.348-.209.774-.209 1.122 0l2.5 1.5A2.032 2.032 0 0 1 18.5 13.25v1.631c0 .309-.24.56-.54.56h-2.116a.586.586 0 0 1-.502-.261l-.454-.896a.541.541 0 0 1 .136-.634Z"></path></svg>
+                                </div>
+                                <h3 class="text-xl font-bold ml-4 text-white">Godot Engine</h3>
+                            </div>
+                            <p class="text-gray-400 mb-4">
+                                Lightweight, open-source engine ideal for 2D. Great for learning optimization and low-level **C++** fundamentals.
+                            </p>
+                            <a href="#" class="text-blue-400 hover:text-blue-300 font-semibold text-sm">Explore Godot &raquo;</a>
+                        </div>
+
+                        <!-- Engine Card 3: Three.js (JavaScript) -->
+                        <div class="bg-gamedev-card p-6 rounded-2xl shadow-xl card-glow border border-gray-700">
+                            <div class="flex items-center mb-4">
+                                <div class="p-3 rounded-full bg-green-500/20 text-green-400">
+                                    <!-- Browser Icon -->
+                                    <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 20l4-16m4 4l4 4-4 4M6 16l-4-4 4-4"></path></svg>
+                                </div>
+                                <h3 class="text-xl font-bold ml-4 text-white">Browser Games (Three.js)</h3>
+                            </div>
+                            <p class="text-gray-400 mb-4">
+                                Build real-time 3D web experiences using **JavaScript** and WebGL. Immediate deployment!
+                            </p>
+                            <a href="#" class="text-green-400 hover:text-green-300 font-semibold text-sm">View JS Frameworks &raquo;</a>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Career Roles Section -->
+            <section id="roles" class="py-20 bg-gamedev-secondary">
+                <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+                    <div class="text-center mb-16">
+                        <h2 class="text-4xl font-extrabold text-white">
+                            Your <span class="text-gamedev-primary">Role</span> in the Industry
+                        </h2>
+                        <p class="mt-4 text-xl text-gray-400">
+                            Career paths where BCA skills directly apply in a game studio.
+                        </p>
+                    </div>
+
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-10">
+                        <!-- Role 1: Gameplay Programmer -->
+                        <div class="bg-gamedev-card p-8 rounded-2xl shadow-2xl border-l-4 border-gamedev-primary card-glow">
+                            <h3 class="text-2xl font-bold text-white mb-3">Gameplay Programmer</h3>
+                            <p class="text-gray-400 mb-4">
+                                Responsible for implementing game features, mechanics, and interaction systems. Requires strong **DSA** and object-oriented programming (OOP) skills.
+                            </p>
+                            <span class="inline-block bg-gamedev-primary/20 text-gamedev-primary text-xs px-3 py-1 rounded-full font-medium">C++/C#</span>
+                            <span class="inline-block bg-gamedev-primary/20 text-gamedev-primary text-xs px-3 py-1 rounded-full font-medium ml-2">OOP</span>
+                        </div>
+
+                        <!-- Role 2: Tools Programmer -->
+                        <div class="bg-gamedev-card p-8 rounded-2xl shadow-2xl border-l-4 border-gamedev-primary card-glow">
+                            <h3 class="text-2xl font-bold text-white mb-3">Tools/Pipeline Developer</h3>
+                            <p class="text-gray-400 mb-4">
+                                Creates applications and scripts to help designers and artists work more efficiently. Requires knowledge of **Python, databases**, and file management.
+                            </p>
+                            <span class="inline-block bg-gamedev-primary/20 text-gamedev-primary text-xs px-3 py-1 rounded-full font-medium">Python/C#</span>
+                            <span class="inline-block bg-gamedev-primary/20 text-gamedev-primary text-xs px-3 py-1 rounded-full font-medium ml-2">File I/O</span>
+                        </div>
+
+                        <!-- Role 3: Quality Assurance (QA) Analyst -->
+                        <div class="bg-gamedev-card p-8 rounded-2xl shadow-2xl border-l-4 border-gamedev-primary card-glow">
+                            <h3 class="text-2xl font-bold text-white mb-3">QA Engineer (Automation)</h3>
+                            <p class="text-gray-400 mb-4">
+                                Designs and executes test plans. Automation roles require strong scripting skills to build custom testing frameworks.
+                            </p>
+                            <span class="inline-block bg-gamedev-primary/20 text-gamedev-primary text-xs px-3 py-1 rounded-full font-medium">Scripting</span>
+                            <span class="inline-block bg-gamedev-primary/20 text-gamedev-primary text-xs px-3 py-1 rounded-full font-medium ml-2">Testing</span>
+                        </div>
+
+                        <!-- Role 4: UI/UX Developer -->
+                        <div class="bg-gamedev-card p-8 rounded-2xl shadow-2xl border-l-4 border-gamedev-primary card-glow">
+                            <h3 class="text-2xl font-bold text-white mb-3">UI/UX Programmer</h3>
+                            <p class="text-gray-400 mb-4">
+                                Builds the game menus, HUDs, and inventory screens. Often uses web technologies (HTML/CSS/JS) embedded in the game engine.
+                            </p>
+                            <span class="inline-block bg-gamedev-primary/20 text-gamedev-primary text-xs px-3 py-1 rounded-full font-medium">HTML/JS</span>
+                            <span class="inline-block bg-gamedev-primary/20 text-gamedev-primary text-xs px-3 py-1 rounded-full font-medium ml-2">Front-end</span>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Resources CTA Section -->
+            <section id="resources" class="bg-gamedev-primary/10 py-16">
+                <div class="max-w-4xl mx-auto px-4 text-center">
+                    <h2 class="text-3xl font-extrabold text-gamedev-primary mb-4">
+                        Ready Player One?
+                    </h2>
+                    <p class="text-xl text-gray-300 mb-8">
+                        The journey of a thousand games begins with a single line of code.
+                    </p>
+                    <a href="#" class="inline-flex items-center justify-center px-8 py-3 border border-transparent text-base font-medium rounded-xl shadow-lg text-gamedev-secondary bg-gamedev-primary hover:bg-amber-500 transition duration-300">
+                        View Essential Tutorials
+                    </a>
+                </div>
+            </section>
+        </main>
+
+        <!-- Footer -->
+        <footer class="bg-gamedev-card border-t border-gray-700">
+            <div class="max-w-7xl mx-auto py-12 px-4 text-center">
+                <p class="text-base text-gray-500">
+                    &copy; 2024 Sarjan Developer. Powered by Code.
+                </p>
+            </div>
+        </footer>
+    </div>
+
+    <script>
+        // --- LOCAL STORAGE & UI STATE MANAGEMENT ---
+
+        const loadingState = document.getElementById('loading-state');
+        const setupContainer = document.getElementById('profile-setup-container');
+        const mainContent = document.getElementById('main-content');
+        const welcomeMessage = document.getElementById('welcome-message');
+
+        const showLoading = (show) => {
+            if (loadingState) loadingState.classList.toggle('hidden', !show);
+        };
+
+        const showSetup = (show) => {
+            if (setupContainer) setupContainer.classList.toggle('hidden', !show);
+            if (mainContent) mainContent.classList.add('hidden');
+        };
+
+        const showMainApp = (name) => {
+            if (setupContainer) setupContainer.classList.add('hidden');
+            if (mainContent) mainContent.classList.remove('hidden');
+            if (welcomeMessage) welcomeMessage.innerHTML = `Welcome back, <span class="text-gamedev-primary">${name}</span>! Build Your World.`;
+        };
+        
+        // --- PROFILE LOGIC ---
+
+        const loadProfile = () => {
+            showLoading(true);
+            const savedName = localStorage.getItem('dev_name');
+            const savedAlias = localStorage.getItem('dev_alias');
+
+            if (savedName && savedAlias) {
+                // Profile found, go straight to the main app
+                showMainApp(savedName);
+            } else {
+                // No profile found, show the setup screen
+                showSetup(true);
+            }
+            showLoading(false);
+        };
+
+        const handleSetup = (event) => {
+            event.preventDefault();
+
+            const nameInput = document.getElementById('student-name');
+            const aliasInput = document.getElementById('dev-alias');
+            const name = nameInput.value.trim();
+            const alias = aliasInput.value.trim();
+            const errorMessage = document.getElementById('error-message');
+
+            if (!name || !alias) {
+                errorMessage.textContent = "Please fill in all fields.";
+                return;
+            }
+
+            // Save to Local Storage
+            localStorage.setItem('dev_name', name);
+            localStorage.setItem('dev_alias', alias);
+            
+            errorMessage.textContent = "";
+            showMainApp(name);
+        };
+
+        const handleLogout = () => {
+            // Note: Using confirm() here is necessary for a static file flow without custom modal UI
+            if (confirm("Are you sure you want to clear your local profile?")) {
+                localStorage.removeItem('dev_name');
+                localStorage.removeItem('dev_alias');
+                // Reload to go back to the setup screen
+                window.location.reload(); 
+            }
+        };
+
+
+        // --- EVENT LISTENERS & INITIALIZATION ---
+
+        document.addEventListener('DOMContentLoaded', () => {
+            // Attach handler to the form
+            const form = document.getElementById('setup-form');
+            if (form) {
+                form.addEventListener('submit', handleSetup);
+            }
+
+            // Attach handler to the clear buttons
+            document.getElementById('logout-button').addEventListener('click', handleLogout);
+            document.getElementById('logout-button-mobile').addEventListener('click', handleLogout);
+
+            // Mobile menu toggle logic
+            const mobileMenuButton = document.getElementById('mobile-menu-button');
+            const mobileMenu = document.getElementById('mobile-menu');
+
+            if (mobileMenuButton && mobileMenu) {
+                mobileMenuButton.addEventListener('click', () => {
+                    mobileMenu.classList.toggle('hidden');
+                });
+            }
+
+            // Close mobile menu when a link is clicked
+            const mobileLinks = mobileMenu ? mobileMenu.querySelectorAll('a') : [];
+            mobileLinks.forEach(link => {
+                link.addEventListener('click', () => {
+                    mobileMenu.classList.add('hidden');
+                });
+            });
+
+            // Simple smooth scroll for hash links
+            document.querySelectorAll('a[href^="#"]').forEach(anchor => {
+                anchor.addEventListener('click', function (e) {
+                    e.preventDefault();
+                    document.querySelector(this.getAttribute('href')).scrollIntoView({
+                        behavior: 'smooth'
+                    });
+                });
+            });
+
+            // Start the application logic
+            loadProfile();
+        });
+    </script>
+</body>
+</html>
