@@ -1,0 +1,411 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>BCA Student Portal</title>
+    <!-- Load Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap" rel="stylesheet">
+    <style>
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: #f7f9fb; /* Light background */
+        }
+        .view {
+            display: none;
+        }
+        .active-link {
+            border-bottom: 2px solid #3b82f6; /* Blue border for active link */
+            color: #1e40af; /* Darker blue text */
+        }
+        /* Custom scrollbar for content areas */
+        .custom-scroll::-webkit-scrollbar {
+            width: 8px;
+        }
+        .custom-scroll::-webkit-scrollbar-thumb {
+            background-color: #cbd5e1;
+            border-radius: 4px;
+        }
+    </style>
+</head>
+<body class="min-h-screen flex items-center justify-center p-4">
+
+    <!-- Main Application Container -->
+    <div id="app-container" class="w-full max-w-4xl bg-white shadow-xl rounded-xl overflow-hidden min-h-[70vh]">
+
+        <!-- 1. Home View -->
+        <section id="home-view" class="view flex flex-col items-center justify-center p-8 text-center h-full">
+            <div class="space-y-6 py-12">
+                <h1 class="text-5xl font-extrabold text-gray-900">
+                    BCA Student Knowledge Hub
+                </h1>
+                <p class="text-xl text-gray-600 max-w-2xl mx-auto">
+                    Your central resource for Bachelor of Computer Applications studies. Access curated knowledge modules and test your understanding with interactive quizzes.
+                </p>
+                <button onclick="showView('login')" class="px-8 py-3 bg-indigo-600 text-white font-semibold text-lg rounded-lg shadow-md hover:bg-indigo-700 transition duration-300 transform hover:scale-105">
+                    Get Started & Login
+                </button>
+            </div>
+            <img src="https://placehold.co/600x250/e0e7ff/3730a3?text=BCA+Learning+Platform" onerror="this.onerror=null; this.src='https://placehold.co/600x250/e0e7ff/3730a3?text=BCA+Learning+Platform';" alt="BCA Learning Platform illustration" class="mt-8 rounded-lg shadow-lg">
+        </section>
+
+        <!-- 2. Login View -->
+        <section id="login-view" class="view flex items-center justify-center p-8 h-full">
+            <div class="w-full max-w-md bg-gray-50 p-8 rounded-xl shadow-lg space-y-6">
+                <h2 class="text-3xl font-bold text-center text-gray-800">Student Login</h2>
+                <div id="login-message" class="text-red-600 text-center font-medium hidden"></div>
+                <form id="login-form" onsubmit="handleLogin(event)" class="space-y-4">
+                    <div>
+                        <label for="username" class="block text-sm font-medium text-gray-700 mb-1">Username (e.g., student)</label>
+                        <input type="text" id="username" value="student" required class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-indigo-500 focus:border-indigo-500 transition duration-150" placeholder="Enter your username">
+                    </div>
+                    <div>
+                        <label for="password" class="block text-sm font-medium text-gray-700 mb-1">Password (e.g., pass123)</label>
+                        <input type="password" id="password" value="pass123" required class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-indigo-500 focus:border-indigo-500 transition duration-150" placeholder="Enter your password">
+                    </div>
+                    <button type="submit" class="w-full bg-blue-600 text-white font-semibold py-2.5 rounded-lg shadow-md hover:bg-blue-700 transition duration-300">
+                        Log In
+                    </button>
+                </form>
+                <button onclick="showView('home')" class="w-full text-sm text-gray-600 hover:text-indigo-600 transition duration-150 mt-4">
+                    &larr; Back to Home
+                </button>
+            </div>
+        </section>
+
+        <!-- 3. Dashboard View -->
+        <section id="dashboard-view" class="view flex flex-col h-full">
+            <header class="flex justify-between items-center p-4 bg-white border-b shadow-sm">
+                <h2 class="text-2xl font-bold text-indigo-700">BCA Portal</h2>
+                <button onclick="handleLogout()" class="px-4 py-2 bg-red-500 text-white text-sm font-semibold rounded-lg hover:bg-red-600 transition duration-300">
+                    Logout
+                </button>
+            </header>
+
+            <div class="flex flex-col md:flex-row flex-grow">
+                <!-- Sidebar/Navigation -->
+                <nav class="md:w-56 p-4 bg-gray-50 border-r md:h-auto h-16 flex md:flex-col justify-around md:justify-start space-x-4 md:space-x-0 md:space-y-2">
+                    <button id="nav-knowledge" onclick="showDashboardSection('knowledge')" class="nav-link text-lg font-medium py-2 px-3 text-gray-700 hover:text-indigo-600 transition duration-150 active-link">
+                        Knowledge Modules
+                    </button>
+                    <button id="nav-test" onclick="showDashboardSection('test')" class="nav-link text-lg font-medium py-2 px-3 text-gray-700 hover:text-indigo-600 transition duration-150">
+                        Take a Test
+                    </button>
+                </nav>
+
+                <!-- Content Area -->
+                <main class="flex-grow p-6 custom-scroll overflow-y-auto">
+
+                    <!-- Knowledge Section -->
+                    <div id="knowledge-section" class="dashboard-section space-y-6">
+                        <h3 class="text-3xl font-semibold text-gray-800 border-b pb-2 mb-4">Core BCA Subjects</h3>
+
+                        <!-- Module 1: Programming Fundamentals -->
+                        <div class="bg-blue-50 p-6 rounded-lg shadow-md">
+                            <h4 class="text-xl font-bold text-blue-700 mb-2">1. Programming Fundamentals (C/C++)</h4>
+                            <p class="text-gray-700 mb-4">Focuses on basic programming concepts, data types, control structures, functions, arrays, and Object-Oriented Programming (OOP) principles.</p>
+                            <div class="text-sm space-y-1">
+                                <p><span class="font-semibold">Key Topics:</span> Loops, Pointers, Structures, Classes, Inheritance, Polymorphism.</p>
+                                <p><span class="font-semibold">Resource Link:</span> <a href="#" class="text-blue-500 hover:underline">Download C++ Quick Guide (Mock PDF)</a></p>
+                            </div>
+                        </div>
+
+                        <!-- Module 2: Database Management System -->
+                        <div class="bg-green-50 p-6 rounded-lg shadow-md">
+                            <h4 class="text-xl font-bold text-green-700 mb-2">2. Database Management System (DBMS)</h4>
+                            <p class="text-gray-700 mb-4">Covers database architecture, data models (ER Model, Relational Model), Relational Algebra, and Structured Query Language (SQL).</p>
+                            <div class="text-sm space-y-1">
+                                <p><span class="font-semibold">Key Topics:</span> Normalization (1NF, 2NF, 3NF, BCNF), Transactions, Concurrency Control, Indexing.</p>
+                                <p><span class="font-semibold">Resource Link:</span> <a href="#" class="text-green-500 hover:underline">SQL Essential Commands Cheat Sheet</a></p>
+                            </div>
+                        </div>
+
+                        <!-- Module 3: Web Technology -->
+                        <div class="bg-yellow-50 p-6 rounded-lg shadow-md">
+                            <h4 class="text-xl font-bold text-yellow-700 mb-2">3. Web Technology</h4>
+                            <p class="text-gray-700 mb-4">An introduction to client-side and server-side web development technologies including HTML5, CSS3, and JavaScript basics.</p>
+                            <div class="text-sm space-y-1">
+                                <p><span class="font-semibold">Key Topics:</span> DOM Manipulation, Responsive Design, CSS Flexbox/Grid, Client-Server Architecture.</p>
+                                <p><span class="font-semibold">Resource Link:</span> <a href="#" class="text-yellow-600 hover:underline">HTML/CSS/JS Project Ideas</a></p>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Test/Quiz Section -->
+                    <div id="test-section" class="dashboard-section hidden space-y-6">
+                        <h3 class="text-3xl font-semibold text-gray-800 border-b pb-2 mb-4">BCA Assessment Test</h3>
+
+                        <div id="quiz-start" class="text-center py-10 bg-indigo-50 rounded-lg shadow-inner">
+                            <p class="text-xl text-indigo-700 mb-4">Ready to test your knowledge?</p>
+                            <p class="text-gray-600 mb-6">This quick assessment covers core BCA topics. You have 5 questions.</p>
+                            <button onclick="startQuiz()" class="px-6 py-3 bg-indigo-600 text-white font-semibold rounded-lg shadow-md hover:bg-indigo-700 transition duration-300">
+                                Start Quiz
+                            </button>
+                        </div>
+
+                        <div id="quiz-container" class="hidden">
+                            <div class="bg-white p-6 rounded-lg shadow-lg">
+                                <p class="text-lg font-bold text-gray-600 mb-4">Question <span id="question-number">1</span> of 5</p>
+                                <h4 id="question-text" class="text-xl font-semibold text-gray-900 mb-6"></h4>
+                                <div id="options-container" class="space-y-3">
+                                    <!-- Options will be injected here -->
+                                </div>
+                                <div class="mt-6 flex justify-between items-center">
+                                    <button onclick="nextQuestion()" disabled id="next-button" class="px-5 py-2 bg-gray-400 text-white font-semibold rounded-lg transition duration-300">
+                                        Next Question
+                                    </button>
+                                    <p id="feedback-message" class="text-sm font-medium"></p>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div id="quiz-results" class="hidden text-center py-10 bg-green-50 rounded-lg shadow-inner">
+                            <h4 class="text-3xl font-bold text-green-700 mb-4">Test Complete!</h4>
+                            <p class="text-2xl text-gray-800 mb-6">Your Score: <span id="final-score" class="font-extrabold text-indigo-600"></span>/5</p>
+                            <button onclick="resetQuiz()" class="px-6 py-3 bg-indigo-600 text-white font-semibold rounded-lg shadow-md hover:bg-indigo-700 transition duration-300">
+                                Try Again
+                            </button>
+                        </div>
+                    </div>
+
+                </main>
+            </div>
+        </section>
+
+    </div>
+
+    <script>
+        // --- Core Application Data ---
+        const MOCK_CREDENTIALS = {
+            username: 'student',
+            password: 'pass123'
+        };
+
+        const QUIZ_DATA = [
+            {
+                question: "Which term best describes the ability of an object to take on many forms in OOP?",
+                options: ["Inheritance", "Encapsulation", "Polymorphism", "Abstraction"],
+                answer: "Polymorphism"
+            },
+            {
+                question: "In DBMS, which normal form requires that every non-prime attribute be fully functionally dependent on the primary key?",
+                options: ["1NF", "2NF", "3NF", "BCNF"],
+                answer: "2NF"
+            },
+            {
+                question: "Which of these is NOT a valid control structure in C programming?",
+                options: ["if-else", "switch-case", "for-each", "do-while"],
+                answer: "for-each"
+            },
+            {
+                question: "What does DOM stand for in the context of Web Technology?",
+                options: ["Data Object Model", "Document Order Marker", "Document Object Model", "Design Object Markup"],
+                answer: "Document Object Model"
+            },
+            {
+                question: "Which SQL clause is used to filter records based on group functions (like COUNT, AVG)?",
+                options: ["WHERE", "GROUP BY", "ORDER BY", "HAVING"],
+                answer: "HAVING"
+            }
+        ];
+
+        let currentView = 'home';
+        let currentQuizIndex = 0;
+        let score = 0;
+        let selectedAnswer = null;
+
+        // --- View Management Functions ---
+
+        /**
+         * Switches the active view displayed to the user.
+         * @param {string} viewName - The ID of the view section to display (e.g., 'home', 'login', 'dashboard').
+         */
+        function showView(viewName) {
+            const views = document.querySelectorAll('.view');
+            views.forEach(view => {
+                view.style.display = 'none';
+            });
+
+            const activeView = document.getElementById(viewName + '-view');
+            if (activeView) {
+                activeView.style.display = 'flex'; // Use flex for alignment in most views
+                currentView = viewName;
+
+                // For the dashboard, ensure the default section is shown
+                if (viewName === 'dashboard') {
+                    showDashboardSection('knowledge');
+                }
+            } else {
+                console.error(`View '${viewName}' not found.`);
+            }
+        }
+
+        /**
+         * Switches the active section within the dashboard view.
+         * @param {string} sectionName - The ID of the dashboard section to display (e.g., 'knowledge', 'test').
+         */
+        function showDashboardSection(sectionName) {
+            const sections = document.querySelectorAll('.dashboard-section');
+            sections.forEach(section => {
+                section.classList.add('hidden');
+            });
+            document.getElementById(sectionName + '-section').classList.remove('hidden');
+
+            // Update active navigation link
+            const navLinks = document.querySelectorAll('.nav-link');
+            navLinks.forEach(link => {
+                link.classList.remove('active-link');
+            });
+            document.getElementById('nav-' + sectionName).classList.add('active-link');
+        }
+
+        // --- Authentication Functions ---
+
+        /**
+         * Handles the mock login process.
+         * @param {Event} event
+         */
+        function handleLogin(event) {
+            event.preventDefault();
+            const usernameInput = document.getElementById('username');
+            const passwordInput = document.getElementById('password');
+            const messageDiv = document.getElementById('login-message');
+
+            const enteredUsername = usernameInput.value.trim();
+            const enteredPassword = passwordInput.value.trim();
+
+            if (enteredUsername === MOCK_CREDENTIALS.username && enteredPassword === MOCK_CREDENTIALS.password) {
+                messageDiv.textContent = '';
+                messageDiv.classList.add('hidden');
+                // Successful login, show dashboard
+                showView('dashboard');
+            } else {
+                // Failed login
+                messageDiv.textContent = 'Invalid username or password. (Hint: student/pass123)';
+                messageDiv.classList.remove('hidden');
+                passwordInput.value = '';
+            }
+        }
+
+        /**
+         * Handles the logout process.
+         */
+        function handleLogout() {
+            // Reset quiz state on logout
+            resetQuizState();
+            showView('home');
+        }
+
+        // --- Quiz Functions ---
+
+        function resetQuizState() {
+            currentQuizIndex = 0;
+            score = 0;
+            selectedAnswer = null;
+            document.getElementById('quiz-start').classList.remove('hidden');
+            document.getElementById('quiz-container').classList.add('hidden');
+            document.getElementById('quiz-results').classList.add('hidden');
+        }
+
+        function startQuiz() {
+            score = 0;
+            currentQuizIndex = 0;
+            document.getElementById('quiz-start').classList.add('hidden');
+            document.getElementById('quiz-results').classList.add('hidden');
+            document.getElementById('quiz-container').classList.remove('hidden');
+            loadQuestion();
+        }
+
+        function loadQuestion() {
+            if (currentQuizIndex >= QUIZ_DATA.length) {
+                showResults();
+                return;
+            }
+
+            const quizItem = QUIZ_DATA[currentQuizIndex];
+            document.getElementById('question-number').textContent = currentQuizIndex + 1;
+            document.getElementById('question-text').textContent = quizItem.question;
+            document.getElementById('feedback-message').textContent = '';
+            document.getElementById('next-button').disabled = true;
+            document.getElementById('next-button').classList.replace('bg-blue-600', 'bg-gray-400');
+            selectedAnswer = null;
+
+            const optionsContainer = document.getElementById('options-container');
+            optionsContainer.innerHTML = ''; // Clear previous options
+
+            quizItem.options.forEach((option, index) => {
+                const optionDiv = document.createElement('div');
+                optionDiv.className = 'option-item p-3 border border-gray-200 rounded-lg cursor-pointer hover:bg-indigo-100 transition duration-150';
+                optionDiv.textContent = option;
+                optionDiv.setAttribute('data-answer', option);
+                optionDiv.onclick = () => selectAnswer(optionDiv, option, quizItem.answer);
+                optionsContainer.appendChild(optionDiv);
+            });
+        }
+
+        function selectAnswer(selectedDiv, answer, correctAnswer) {
+            // Disable all options after selection
+            const options = document.querySelectorAll('#options-container .option-item');
+            options.forEach(opt => {
+                opt.onclick = null; // Disable click
+                opt.classList.remove('hover:bg-indigo-100');
+                opt.classList.remove('bg-gray-100'); // Remove temporary hover/selected styles
+            });
+
+            selectedAnswer = answer;
+            const isCorrect = answer === correctAnswer;
+            const feedback = document.getElementById('feedback-message');
+            let nextButton = document.getElementById('next-button');
+
+            // Apply styling
+            if (isCorrect) {
+                selectedDiv.classList.add('bg-green-200', 'border-green-500');
+                feedback.textContent = 'Correct Answer!';
+                feedback.classList.replace('text-red-500', 'text-green-600');
+                score++;
+            } else {
+                selectedDiv.classList.add('bg-red-200', 'border-red-500');
+                feedback.textContent = 'Incorrect. The correct answer was: ' + correctAnswer;
+                feedback.classList.replace('text-green-600', 'text-red-500');
+
+                // Highlight correct answer
+                options.forEach(opt => {
+                    if (opt.getAttribute('data-answer') === correctAnswer) {
+                        opt.classList.add('bg-green-300', 'border-green-500');
+                    }
+                });
+            }
+
+            // Enable next button
+            nextButton.disabled = false;
+            nextButton.classList.replace('bg-gray-400', 'bg-blue-600');
+            nextButton.classList.add('hover:bg-blue-700');
+        }
+
+        function nextQuestion() {
+            currentQuizIndex++;
+            loadQuestion();
+        }
+
+        function showResults() {
+            document.getElementById('quiz-container').classList.add('hidden');
+            document.getElementById('quiz-results').classList.remove('hidden');
+            document.getElementById('final-score').textContent = score;
+        }
+
+        function resetQuiz() {
+            resetQuizState();
+            // Optional: immediately show the 'Take a Test' section again
+            showDashboardSection('test');
+        }
+
+        // --- Initialization ---
+
+        // Set initial view on page load
+        window.onload = () => {
+            showView('home');
+        };
+    </script>
+</body>
+</html>
